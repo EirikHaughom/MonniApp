@@ -1,11 +1,20 @@
-import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 
-export default async function CenteredLayout(props: { children: React.ReactNode }) {
-  const { userId } = await auth();
+import { auth } from '@/libs/auth';
+import { getI18nPath } from '@/utils/Helpers';
+
+type CenteredLayoutProps = {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+};
+
+export default async function CenteredLayout(props: CenteredLayoutProps) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  const { locale } = await props.params;
 
   if (userId) {
-    redirect('/dashboard');
+    redirect(getI18nPath('/dashboard', locale));
   }
 
   return (

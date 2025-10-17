@@ -1,6 +1,9 @@
 import {
   bigint,
+  boolean,
+  integer,
   pgTable,
+  primaryKey,
   serial,
   text,
   timestamp,
@@ -57,3 +60,83 @@ export const todoSchema = pgTable('todo', {
     .notNull(),
   createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
 });
+
+export const users = pgTable('user', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text('name'),
+  email: text('email').unique(),
+  emailVerified: timestamp('email_verified', { mode: 'date' }),
+  image: text('image'),
+});
+
+export const accounts = pgTable(
+  'account',
+  {
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    type: text('type').$type<'oauth' | 'email' | 'credentials'>().notNull(),
+    provider: text('provider').notNull(),
+    providerAccountId: text('provider_account_id').notNull(),
+    refresh_token: text('refresh_token'),
+    access_token: text('access_token'),
+    expires_at: integer('expires_at'),
+    token_type: text('token_type'),
+    scope: text('scope'),
+    id_token: text('id_token'),
+    session_state: text('session_state'),
+  },
+  account => ({
+    compoundKey: primaryKey({
+      columns: [account.provider, account.providerAccountId],
+      name: 'account_provider_provider_account_id_pk',
+    }),
+  }),
+);
+
+export const sessions = pgTable('session', {
+  sessionToken: text('session_token').primaryKey(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  expires: timestamp('expires', { mode: 'date' }).notNull(),
+});
+
+export const verificationTokens = pgTable(
+  'verification_token',
+  {
+    identifier: text('identifier').notNull(),
+    token: text('token').notNull(),
+    expires: timestamp('expires', { mode: 'date' }).notNull(),
+  },
+  verificationToken => ({
+    compositePk: primaryKey({
+      columns: [verificationToken.identifier, verificationToken.token],
+      name: 'verification_token_identifier_token_pk',
+    }),
+  }),
+);
+
+export const authenticators = pgTable(
+  'authenticator',
+  {
+    credentialID: text('credential_id').notNull().unique(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    providerAccountId: text('provider_account_id').notNull(),
+    credentialPublicKey: text('credential_public_key').notNull(),
+    counter: integer('counter').notNull(),
+    credentialDeviceType: text('credential_device_type').notNull(),
+    credentialBackedUp: boolean('credential_backed_up').notNull(),
+    transports: text('transports'),
+  },
+  authenticator => ({
+    compositePk: primaryKey({
+      columns: [authenticator.userId, authenticator.credentialID],
+      name: 'authenticator_user_id_credential_id_pk',
+    }),
+  }),
+);

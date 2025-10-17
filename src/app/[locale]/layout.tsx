@@ -1,10 +1,14 @@
 import '@/styles/global.css';
 
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import type { Session } from 'next-auth';
 import { NextIntlClientProvider, useMessages } from 'next-intl';
-import { unstable_setRequestLocale } from 'next-intl/server';
+import { setRequestLocale } from 'next-intl/server';
 
 import { DemoBadge } from '@/components/DemoBadge';
+import { AuthSessionProvider } from '@/components/providers/SessionProvider';
+import { auth } from '@/libs/auth';
 import { AllLocales } from '@/utils/AppConfig';
 
 export const metadata: Metadata = {
@@ -36,11 +40,20 @@ export function generateStaticParams() {
   return AllLocales.map(locale => ({ locale }));
 }
 
-export default function RootLayout(props: {
+type RootLayoutProps = {
   children: React.ReactNode;
-  params: { locale: string };
-}) {
-  unstable_setRequestLocale(props.params.locale);
+  params: { locale: string } | Promise<{ locale: string }>;
+};
+
+export default async function RootLayout(props: RootLayoutProps) {
+  const { locale } = await props.params;
+
+  if (!AllLocales.includes(locale)) {
+    notFound();
+  }
+
+  setRequestLocale(locale);
+  const session = (await auth()) as Session | null;
 
   // Using internationalization in Client Components
   const messages = useMessages();
@@ -51,17 +64,19 @@ export default function RootLayout(props: {
   // The `suppressHydrationWarning` attribute in <body> is used to prevent hydration errors caused by Sentry Overlay,
   // which dynamically adds a `style` attribute to the body tag.
   return (
-    <html lang={props.params.locale} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body className="bg-background text-foreground antialiased" suppressHydrationWarning>
         {/* PRO: Dark mode support for Shadcn UI */}
-        <NextIntlClientProvider
-          locale={props.params.locale}
-          messages={messages}
-        >
-          {props.children}
+        <AuthSessionProvider session={session}>
+          <NextIntlClientProvider
+            locale={locale}
+            messages={messages}
+          >
+            {props.children}
 
-          <DemoBadge />
-        </NextIntlClientProvider>
+            <DemoBadge />
+          </NextIntlClientProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   );

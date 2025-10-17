@@ -80,7 +80,20 @@
   },
   "SignIn": {
     "meta_title": "Sign in",
-    "meta_description": "Seamlessly sign in to your account with our user-friendly login process."
+    "meta_description": "Seamlessly sign in to your account with our user-friendly login process.",
+    "title": "Access your account",
+    "description": "Enter your email address and we will send you a secure magic link to complete sign-in.",
+    "email_label": "Work email",
+    "button_default": "Send magic link",
+    "button_loading": "Sending…",
+    "sent": "Success! Check your inbox for the sign-in link.",
+    "error_generic": "We were unable to send the email. Please try again."
+  },
+  "SignInVerify": {
+    "meta_title": "Check your inbox",
+    "meta_description": "We sent a verification link to your email address.",
+    "title": "Confirm your sign-in",
+    "description": "Open the message we just sent you and click the button to finish signing in. The link expires in 24 hours."
   },
   "SignUp": {
     "meta_title": "Sign up",
@@ -107,11 +120,28 @@
   },
   "UserProfile": {
     "title_bar": "User Profile",
-    "title_bar_description": "View and manage your user profile"
+    "title_bar_description": "View and manage your user profile",
+    "details_title": "Account details",
+    "email_label": "Email address",
+    "name_label": "Display name",
+    "security_title": "Security",
+    "security_description": "Sign out from shared devices when you are finished working.",
+    "sign_out_button": "Sign out"
   },
   "OrganizationProfile": {
     "title_bar": "Organization Management",
-    "title_bar_description": "Manage your organization"
+    "title_bar_description": "Manage your organization",
+    "overview_title": "Team management coming soon",
+    "overview_description": "Better Auth handles authentication and user records. Extend this section to connect users to your own tenant or workspace model.",
+    "todo_title": "Next steps",
+    "todo_description": "Model workspaces in your database and invite teammates by sending them a magic link. Update this page to surface organization settings once they are ready.",
+    "todo_cta": "Read the Auth.js docs"
+  },
+  "OrganizationSelection": {
+    "meta_title": "Organization setup",
+    "meta_description": "Configure workspace membership for your account.",
+    "title": "Workspace selection is not required",
+    "description": "This starter now relies on Better Auth magic links. Connect your own workspace tables and redirect here when you need users to pick or create an organization."
   },
   "Billing": {
     "title_bar": "Billing",

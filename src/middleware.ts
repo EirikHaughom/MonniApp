@@ -1,10 +1,7 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import {
-  type NextFetchEvent,
-  type NextRequest,
-  NextResponse,
-} from 'next/server';
+import { NextResponse } from 'next/server';
 import createMiddleware from 'next-intl/middleware';
+
+import { auth } from '@/libs/auth';
 
 import { AllLocales, AppConfig } from './utils/AppConfig';
 
@@ -14,59 +11,83 @@ const intlMiddleware = createMiddleware({
   defaultLocale: AppConfig.defaultLocale,
 });
 
-const isProtectedRoute = createRouteMatcher([
-  '/dashboard(.*)',
-  '/:locale/dashboard(.*)',
-  '/onboarding(.*)',
-  '/:locale/onboarding(.*)',
-  '/api(.*)',
-  '/:locale/api(.*)',
-]);
+const protectedRoutePatterns = [
+  /^\/dashboard(?:\/|$)/,
+  /^\/onboarding(?:\/|$)/,
+  /^\/api(?!\/auth)(?:\/|$)/,
+];
 
-export default function middleware(
-  request: NextRequest,
-  event: NextFetchEvent,
-) {
-  if (
-    request.nextUrl.pathname.includes('/sign-in')
-    || request.nextUrl.pathname.includes('/sign-up')
-    || isProtectedRoute(request)
-  ) {
-    return clerkMiddleware(async (auth, req) => {
-      if (isProtectedRoute(req)) {
-        const locale
-          = req.nextUrl.pathname.match(/(\/.*)\/dashboard/)?.at(1) ?? '';
+const signInRoutePatterns = [/^\/sign-in(?:\/|$)/];
 
-        const signInUrl = new URL(`${locale}/sign-in`, req.url);
+const isProtectedRoute = (pathname: string) => {
+  const segments = pathname.split('/').filter(Boolean);
+  const maybeLocale = segments[0];
 
-        await auth.protect({
-          // `unauthenticatedUrl` is needed to avoid error: "Unable to find `next-intl` locale because the middleware didn't run on this request"
-          unauthenticatedUrl: signInUrl.toString(),
-        });
-      }
+  if (maybeLocale && AllLocales.includes(maybeLocale)) {
+    const sliced = `/${segments.slice(1).join('/')}`;
+    return protectedRoutePatterns.some(regex => regex.test(sliced));
+  }
 
-      const authObj = await auth();
+  return protectedRoutePatterns.some(regex => regex.test(pathname));
+};
 
-      if (
-        authObj.userId
-        && !authObj.orgId
-        && req.nextUrl.pathname.includes('/dashboard')
-        && !req.nextUrl.pathname.endsWith('/organization-selection')
-      ) {
-        const orgSelection = new URL(
-          '/onboarding/organization-selection',
-          req.url,
-        );
+const isSignInRoute = (pathname: string) => {
+  const segments = pathname.split('/').filter(Boolean);
+  const maybeLocale = segments[0];
 
-        return NextResponse.redirect(orgSelection);
-      }
+  if (maybeLocale && AllLocales.includes(maybeLocale)) {
+    const sliced = `/${segments.slice(1).join('/')}`;
+    return signInRoutePatterns.some(regex => regex.test(sliced));
+  }
 
-      return intlMiddleware(req);
-    })(request, event);
+  return signInRoutePatterns.some(regex => regex.test(pathname));
+};
+
+const getLocaleFromPathname = (pathname: string) => {
+  const segments = pathname.split('/').filter(Boolean);
+  const localeCandidate = segments[0];
+
+  if (localeCandidate && AllLocales.includes(localeCandidate)) {
+    return localeCandidate;
+  }
+
+  return AppConfig.defaultLocale;
+};
+
+export default auth((request) => {
+  const { nextUrl } = request;
+
+  if (nextUrl.pathname.startsWith('/api/auth')) {
+    return NextResponse.next();
+  }
+
+  const locale = getLocaleFromPathname(nextUrl.pathname);
+  const isAuthenticated = !!request.auth?.user;
+
+  if (isProtectedRoute(nextUrl.pathname) && !isAuthenticated) {
+    const signInUrl = new URL(
+      locale === AppConfig.defaultLocale ? '/sign-in' : `/${locale}/sign-in`,
+      nextUrl,
+    );
+
+    signInUrl.searchParams.set('callbackUrl', nextUrl.toString());
+
+    return NextResponse.redirect(signInUrl);
+  }
+
+  if (isAuthenticated && isSignInRoute(nextUrl.pathname)) {
+    return NextResponse.redirect(
+      new URL(
+        locale === AppConfig.defaultLocale
+          ? '/dashboard'
+          : `/${locale}/dashboard`,
+        nextUrl,
+      ),
+    );
   }
 
   return intlMiddleware(request);
-}
+});
 
 export const config = {
   matcher: ['/((?!.+\\.[\\w]+$|_next|monitoring).*)', '/', '/(api|trpc)(.*)'], // Also exclude tunnelRoute used in Sentry from the matcher

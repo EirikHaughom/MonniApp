@@ -1,4 +1,4 @@
-import { SignUp } from '@clerk/nextjs';
+import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 
 import { getI18nPath } from '@/utils/Helpers';
@@ -15,8 +15,8 @@ export async function generateMetadata(props: { params: { locale: string } }) {
   };
 }
 
-const SignUpPage = (props: { params: { locale: string } }) => (
-  <SignUp path={getI18nPath('/sign-up', props.params.locale)} />
-);
+const SignUpPage = (props: { params: { locale: string } }) => {
+  redirect(getI18nPath('/sign-in', props.params.locale));
+};
 
 export default SignUpPage;

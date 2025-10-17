@@ -1,0 +1,77 @@
+# Use azure
+model = "gpt-5"
+model_provider = "azure"
+profile = "gpt-5-codex-high"
+
+# Reasoning etc settings
+approval_policy = "never"
+
+[model_providers.azure]
+name = "Azure"
+# Make sure you set the appropriate subdomain for this URL.
+base_url = "https://joa-openai.openai.azure.com/openai"
+env_key = "AZURE_OPENAI_API_KEY"
+query_params = { api-version = "2025-04-01-preview" }
+wire_api = "responses"
+
+[profiles.gpt-5-high]
+model = "gpt-5"
+model_provider = "azure"
+model_reasoning_effort = "high"
+
+[profiles.gpt-5-codex-high]
+model = "gpt-5-codex"
+model_provider = "azure"
+model_reasoning_effort = "high"
+
+[mcp_servers.playwright]
+command = "npx"
+args = [ "@playwright/mcp@latest" ]
+startup_timeout_ms = 20000
+
+[mcp_servers.shadcn]
+command = "npx"
+args = [
+  "-y",
+  "mcp-remote",
+  "https://www.shadcn.io/api/mcp"
+]
+startup_timeout_ms = 20000
+
+[mcp_servers.github]
+command = "docker"
+args = [
+  "run",
+  "-i",
+  "--rm",
+  "-e",
+  "GITHUB_PERSONAL_ACCESS_TOKEN=$GITHUB_PERSONAL_ACCESS_TOKEN",
+  "ghcr.io/github/github-mcp-server"
+]
+startup_timeout_ms = 20000
+
+[mcp_servers.context7]
+command = "npx"
+args = [
+  "-y",
+  "@upstash/context7-mcp"
+]
+env = {}
+startup_timeout_ms = 20000
+
+[mcp_servers.sequential-thinking]
+command = "npx"
+args = [
+  "-y",
+  "@modelcontextprotocol/server-sequential-thinking"
+]
+
+[mcp_servers.ms-docs]
+# Streaming HTTP transport for remote MCP servers
+command = "npx"
+args = [
+  "-y",
+  "mcp-remote",
+  "https://learn.microsoft.com/api/mcp"
+]
+startup_timeout_ms = 20000

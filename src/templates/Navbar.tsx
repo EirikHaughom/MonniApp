@@ -21,7 +21,7 @@ export const Navbar = () => {
             <li data-fade>
               <LocaleSwitcher />
             </li>
-            <li className="ml-1 mr-2.5" data-fade>
+            <li className="mr-2.5 ml-1" data-fade>
               <Link href="/sign-in">{t('sign_in')}</Link>
             </li>
             <li>

@@ -24,8 +24,37 @@ export default withSentryConfig(
       },
       poweredByHeader: false,
       reactStrictMode: true,
-      experimental: {
-        serverComponentsExternalPackages: ['@electric-sql/pglite'],
+      serverExternalPackages: ['@electric-sql/pglite'],
+      webpack(config, { isServer }) {
+        const nodeAliases = {
+          'node:buffer': 'buffer',
+          'node:crypto': 'crypto',
+          'node:events': 'events',
+          'node:fs': 'fs',
+          'node:path': 'path',
+          'node:process': 'process',
+          'node:stream': 'stream',
+          'node:url': 'url',
+        };
+
+        config.resolve.alias = {
+          ...(config.resolve.alias ?? {}),
+          ...nodeAliases,
+        };
+
+        if (!isServer) {
+          config.resolve.fallback = {
+            ...(config.resolve.fallback ?? {}),
+            crypto: false,
+            events: false,
+            fs: false,
+            path: false,
+            stream: false,
+            url: false,
+          };
+        }
+
+        return config;
       },
     }),
   ),

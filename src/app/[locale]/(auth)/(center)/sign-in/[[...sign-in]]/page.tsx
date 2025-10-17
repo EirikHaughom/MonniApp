@@ -1,7 +1,6 @@
-import { SignIn } from '@clerk/nextjs';
 import { getTranslations } from 'next-intl/server';
 
-import { getI18nPath } from '@/utils/Helpers';
+import { SignInForm } from '@/features/auth/SignInForm';
 
 export async function generateMetadata(props: { params: { locale: string } }) {
   const t = await getTranslations({
@@ -15,8 +14,26 @@ export async function generateMetadata(props: { params: { locale: string } }) {
   };
 }
 
-const SignInPage = (props: { params: { locale: string } }) => (
-  <SignIn path={getI18nPath('/sign-in', props.params.locale)} />
-);
+type SignInPageProps = {
+  params: { locale: string };
+  searchParams?: Record<string, string | string[] | undefined>;
+};
+
+const SignInPage = (props: SignInPageProps) => {
+  const callbackUrlParam = props.searchParams?.callbackUrl;
+  const callbackUrl = Array.isArray(callbackUrlParam)
+    ? callbackUrlParam[0]
+    : callbackUrlParam;
+  const errorParam = props.searchParams?.error;
+  const initialError = Array.isArray(errorParam) ? errorParam[0] : errorParam;
+
+  return (
+    <SignInForm
+      locale={props.params.locale}
+      callbackUrl={callbackUrl}
+      initialError={initialError}
+    />
+  );
+};
 
 export default SignInPage;

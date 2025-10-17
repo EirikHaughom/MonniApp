@@ -6,24 +6,12 @@ import { LogoCloud } from '@/features/landing/LogoCloud';
 export const SponsorLogos = () => (
   <LogoCloud text="Sponsored by">
     <a
-      href="https://clerk.com?utm_source=github&utm_medium=sponsorship&utm_campaign=nextjs-boilerplate"
+      href="https://better-auth.com"
       target="_blank"
       rel="noopener"
+      className="flex h-10 items-center justify-center rounded-md border border-border px-6 text-sm font-semibold tracking-wide text-foreground uppercase transition hover:border-primary/50 hover:text-primary"
     >
-      <Image
-        src="/assets/images/clerk-logo-dark.png"
-        alt="Clerk logo dark"
-        className="dark:hidden"
-        width="128"
-        height="37"
-      />
-      <Image
-        src="/assets/images/clerk-logo-white.png"
-        alt="Clerk logo light"
-        className="hidden dark:block"
-        width="128"
-        height="37"
-      />
+      Better Auth
     </a>
 
     <a

@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 import antfu from '@antfu/eslint-config';
 import nextPlugin from '@next/eslint-plugin-next';
 import jestDom from 'eslint-plugin-jest-dom';
@@ -6,6 +8,8 @@ import playwright from 'eslint-plugin-playwright';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import tailwind from 'eslint-plugin-tailwindcss';
 import testingLibrary from 'eslint-plugin-testing-library';
+
+const tailwindDesignSystemPath = path.join(process.cwd(), 'src/styles/global.css');
 
 export default antfu({
   react: true,
@@ -54,6 +58,12 @@ export default antfu({
     '**/*.e2e.ts',
   ],
   ...playwright.configs['flat/recommended'],
+}, {
+  settings: {
+    tailwindcss: {
+      config: tailwindDesignSystemPath,
+    },
+  },
 }, {
   rules: {
     'import/order': 'off', // Avoid conflicts with `simple-import-sort` plugin

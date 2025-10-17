@@ -8,7 +8,7 @@
 
 Packed with essential features like built-in **Authentication**, **Multi-Tenancy** with Team support, **Role & Permission**, Database, I18n (internationalization), Landing Page, User Dashboard, Form handling, SEO optimization, Logging, Error reporting with [Sentry](https://sentry.io/for/nextjs/?utm_source=github&utm_medium=paid-community&utm_campaign=general-fy25q1-nextjs&utm_content=github-banner-nextjsboilerplate-logo), Testing, Deployment, Monitoring, and **User Impersonation**, this SaaS template provides everything you need to get started.
 
-Designed with developers in mind, this **Next.js Starter Kit** uses TypeScript for type safety and integrates ESLint to maintain code quality, along with Prettier for consistent code formatting. The testing suite combines Vitest and React Testing Library for robust unit testing, while Playwright handles integration and E2E testing. Continuous integration and deployment are managed via GitHub Actions. For user management, authentication is handled by [Clerk](https://go.clerk.com/zGlzydF). For database operations, it uses Drizzle ORM for type-safe database management across popular databases like PostgreSQL, SQLite, and MySQL. One recommended option is to use [Prisma PostgreSQL](https://www.prisma.io/?via=saasboilerplatetop), which provides a free PostgreSQL database that is compatible and has been tested with SaaS Boilerplate.
+Designed with developers in mind, this **Next.js Starter Kit** uses TypeScript for type safety and integrates ESLint to maintain code quality, along with Prettier for consistent code formatting. The testing suite combines Vitest and React Testing Library for robust unit testing, while Playwright handles integration and E2E testing. Continuous integration and deployment are managed via GitHub Actions. For user management, authentication is powered by [Better Auth (Auth.js)](https://better-auth.com) using email magic links. For database operations, it uses Drizzle ORM for type-safe database management across popular databases like PostgreSQL, SQLite, and MySQL. One recommended option is to use [Prisma PostgreSQL](https://www.prisma.io/?via=saasboilerplatetop), which provides a free PostgreSQL database that is compatible and has been tested with SaaS Boilerplate.
 
 Whether you're building a new SaaS app or looking for a flexible, **production-ready SaaS template**, this boilerplate has you covered. This free, open-source starter kit has everything you need to accelerate your development and scale your product with ease.
 
@@ -19,12 +19,8 @@ Clone this project and use it to create your own SaaS. You can check the live de
 <table width="100%">
   <tr height="187px">
     <td align="center" width="33%">
-      <a href="https://go.clerk.com/zGlzydF">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="https://github.com/ixartz/SaaS-Boilerplate/assets/1328388/6fb61971-3bf1-4580-98a0-10bd3f1040a2">
-          <source media="(prefers-color-scheme: light)" srcset="https://github.com/ixartz/SaaS-Boilerplate/assets/1328388/f80a8bb5-66da-4772-ad36-5fabc5b02c60">
-          <img alt="Clerk – Authentication & User Management for Next.js" src="https://github.com/ixartz/SaaS-Boilerplate/assets/1328388/f80a8bb5-66da-4772-ad36-5fabc5b02c60">
-        </picture>
+      <a href="https://better-auth.com">
+        <strong>Better Auth</strong>
       </a>
     </td>
     <td align="center" width="33%">
@@ -128,7 +124,7 @@ Developer experience first, extremely flexible code structure and only keep what
 - 🔥 Type checking [TypeScript](https://www.typescriptlang.org)
 - 💎 Integrate with [Tailwind CSS](https://tailwindcss.com) and Shadcn UI
 - ✅ Strict Mode for TypeScript and [React](https://react.dev)
-- 🔒 Authentication with [Clerk](https://go.clerk.com/zGlzydF): Sign up, Sign in, Sign out, Forgot password, Reset password, and more.
+- 🔒 Authentication with [Better Auth (Auth.js)](https://better-auth.com): Passwordless email magic links with built-in session management.
 - 👤 Passwordless Authentication with Magic Links, Multi-Factor Auth (MFA), Social Auth (Google, Facebook, Twitter, GitHub, Apple, and more), Passwordless login with Passkeys, User Impersonation
 - 👥 Multi-tenancy & team support: create, switch, update organization and invite team members
 - 📝 Role-based access control and permissions
@@ -136,7 +132,7 @@ Developer experience first, extremely flexible code structure and only keep what
 - 📦 Type-safe ORM with DrizzleORM, compatible with PostgreSQL, SQLite, and MySQL
 - 💽 Offline and local development database with PGlite
 - ☁️ Remote and production database with [Prisma Postgres](https://www.prisma.io/?via=saasboilerplate)
-- 🌐 Multi-language (i18n) with [next-intl](https://next-intl-docs.vercel.app/) and [Crowdin](https://l.crowdin.com/next-js)
+- 🌐 Multi-language (i18n) with [next-intl](https://next-intl-docs.vercel.app/) and [Crowdin](https://l.crowdin.com/next-js) (Norsk default + English secondary)
 - ♻️ Type-safe environment variables with T3 Env
 - ⌨️ Form with [React Hook Form](https://react-hook-form.com)
 - 🔴 Validation library with [Zod](https://zod.dev)
@@ -184,7 +180,7 @@ Built-in feature from Next.js:
 
 ### Requirements
 
-- Node.js 20+ and npm
+- Node.js 23+ and npm
 
 ### Getting started
 
@@ -248,16 +244,24 @@ This project offers both a free open-source version and a premium Pro version. H
 
 ### Set up authentication
 
-Create a Clerk account at [Clerk.com](https://go.clerk.com/zGlzydF) and create a new application in the Clerk Dashboard. Then, copy the values of `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` into the `.env.local` file (which is not tracked by Git):
+This starter ships with [Better Auth (Auth.js)](https://better-auth.com) configured for passwordless email magic links. To finish the setup:
 
-```shell
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_pub_key
-CLERK_SECRET_KEY=your_clerk_secret_key
-```
+1. Generate a strong secret and add it to `.env.local`:
+   ```bash
+   openssl rand -base64 32
+   ```
+   ```shell
+   AUTH_SECRET=replace_with_generated_value
+   AUTH_URL=http://localhost:3000
+   ```
+2. Create a [Resend](https://resend.com) account (free tier is enough) and copy your API key:
+   ```shell
+   RESEND_API_KEY=your_resend_api_key
+   EMAIL_FROM="Acme Support <support@example.com>"
+   ```
+3. Restart the dev server so the new environment variables are picked up.
 
-In your Clerk Dashboard, you also need to `Enable Organization` by navigating to `Organization management` > `Settings` > `Enable organization`.
-
-Now, you have a fully working authentication system with Next.js: Sign up, Sign in, Sign out, Forgot password, Reset password, Update profile, Update password, Update email, Delete account, and more.
+Users can now request a magic link from the sign-in screen. Better Auth manages sessions in your database (via Drizzle) and automatically validates each link.
 
 ### Set up remote database
 
@@ -269,7 +273,7 @@ After creating your Prisma account, you can get the connection string in the `Co
 
 ### Translation (i18n) setup
 
-For translation, the project uses `next-intl` combined with [Crowdin](https://l.crowdin.com/next-js). As a developer, you only need to take care of the English (or another default language) version. Translations for other languages are automatically generated and handled by Crowdin. You can use Crowdin to collaborate with your translation team or translate the messages yourself with the help of machine translation.
+For translation, the project uses `next-intl` combined with [Crowdin](https://l.crowdin.com/next-js). The starter ships with **Norsk** as the default locale and **English** as an additional locale. As a developer, you only need to take care of the default language; additional languages can then be synchronized through Crowdin. You can use Crowdin to collaborate with your translation team or translate the messages yourself with the help of machine translation.
 
 To set up translation (i18n), create an account at [Crowdin.com](https://l.crowdin.com/next-js) and create a new project. In the newly created project, you will be able to find the project ID. You will also need to create a new Personal Access Token by going to Account Settings > API. Then, in your GitHub Actions, you need to define the following environment variables: `CROWDIN_PROJECT_ID` and `CROWDIN_PERSONAL_TOKEN`.
 
@@ -437,7 +441,7 @@ It generates an optimized production build of the boilerplate. To test the gener
 $ npm run start
 ```
 
-You also need to defined the environment variables `CLERK_SECRET_KEY` using your own key.
+You also need to define the authentication environment variables (`AUTH_SECRET`, `RESEND_API_KEY`, and `EMAIL_FROM`) with your own values.
 
 This command starts a local server using the production build. You can now open http://localhost:3000 in your preferred browser to see the result.
 
@@ -514,12 +518,8 @@ See [LICENSE](LICENSE) for more information.
 <table width="100%">
   <tr height="187px">
     <td align="center" width="33%">
-      <a href="https://go.clerk.com/zGlzydF">
-        <picture>
-          <source media="(prefers-color-scheme: dark)" srcset="https://github.com/ixartz/SaaS-Boilerplate/assets/1328388/6fb61971-3bf1-4580-98a0-10bd3f1040a2">
-          <source media="(prefers-color-scheme: light)" srcset="https://github.com/ixartz/SaaS-Boilerplate/assets/1328388/f80a8bb5-66da-4772-ad36-5fabc5b02c60">
-          <img alt="Clerk – Authentication & User Management for Next.js" src="https://github.com/ixartz/SaaS-Boilerplate/assets/1328388/f80a8bb5-66da-4772-ad36-5fabc5b02c60">
-        </picture>
+      <a href="https://better-auth.com">
+        <strong>Better Auth</strong>
       </a>
     </td>
     <td align="center" width="33%">
