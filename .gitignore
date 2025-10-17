@@ -43,6 +43,10 @@ yarn-error.log*
 
 # local env files
 .env*.local
+.env
+
+# codex
+codex.sh
 
 # local folder
 local
